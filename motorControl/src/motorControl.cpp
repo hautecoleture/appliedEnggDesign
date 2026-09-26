@@ -7,7 +7,7 @@ const byte DUTY_CYCLE = 255;	// duty cycle from 0-255, 255 is 100%
 const byte PHOTO_PIN = A0;
 const byte LED_PIN = 7;
 // state and comparison variables
-const int PHOTO_LEVEL = 50;		// determined experimentally
+const int PHOTO_LEVEL = 5;		// determined experimentally
 int photoState = 0;
 bool switchState = LOW;
 
