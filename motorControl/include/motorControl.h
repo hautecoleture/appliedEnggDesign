@@ -21,4 +21,13 @@ const int PHOTO_MIN = 200;
 int photoState;
 bool switchState;
 
+// rampUp function
+void rampUp (
+    unsigned long startMillis,
+    unsigned long previousMillis,
+    unsigned long interval
+);
+
+void constantSpeed ();
+
 #endif
