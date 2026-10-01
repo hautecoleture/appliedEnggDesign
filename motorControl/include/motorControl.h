@@ -23,8 +23,8 @@ bool switchState;
 
 // rampUp function
 void rampUp (
-    unsigned long startMillis,
-    unsigned long previousMillis,
+    unsigned long now,
+    unsigned long prev,
     unsigned long interval
 );
 

@@ -17,7 +17,7 @@ void setup() {
 // ============================================================================
 void rampUp(
     unsigned long now = millis(), 
-    unsigned long previousMillis = 0, 
+    unsigned long prev = 0, 
     unsigned long interval = 50         // 50 ms
 ) {
     for (
@@ -25,21 +25,19 @@ void rampUp(
         n <= MAX_CYCLE;
         n++
     ) {
-        if (now - previousMillis >= interval) {
+        if (now - prev >= interval) {
             analogWrite(MOTOR_PIN, n);
-            previousMillis = startMillis;
+            prev = now;
         }
     }
 }
 
-void constantSpeed() {
-    analogWrite(MOTOR_PIN, MAX_CYCLE);
-}
-
 void loop() {
     switchState = digitalRead(SWITCH_PIN);
-    int rampState = null;
     if (switchState == HIGH) {
-        rampUp();
-
+        rampUp();       // PWM ramp
+        analogWrite(MOTOR_PIN, MAX_CYCLE);
+        delay(2000);    // 2 sec, hold on 
+        analogWrite(MOTOR_PIN, 0);
+        delay(2000);    // 2 sec, cool down
 }
