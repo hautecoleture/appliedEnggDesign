@@ -1,71 +1,25 @@
 #include <Arduino.h>
+#include <Servo.h>
 
-// pin constants
-const byte SWITCH_PIN = 2;
-const byte MOTOR_PIN = 3;
-const byte LED_PIN = 7;
-const byte CURRENT = A0;
-const byte PHOTO_PIN = A2;
+Servo s1;
 
-// duty cycle constants
-const int START_CYCLE = 50; 	// ~20% 
-const int MAX_CYCLE = 250;		// ~98%
-const int RAMP_MS = 1000;		// 1 second 
+#define servoPin 10
 
-// state constants and variables 
-const int PHOTO_MIN = 200;		// determined experimentally
-int currentLevel = 0;
-int photoState = 0;
-bool switchState = LOW;
 
-void setup() {
-	Serial.begin(9600);
-	pinMode(MOTOR_PIN, OUTPUT);	
-	pinMode(SWITCH_PIN, INPUT);
-	pinMode(PHOTO_PIN, INPUT);
-	pinMode(LED_PIN, OUTPUT);
+void flipFilter(){//Flip the filter and place it back
+    s1.write(0);
+    delay(500);
+    s1.write(180);
 }
 
-/* Need some logic to halt the motor if there is a jam and current spikes. 
-A ramp-up prevents a dramatic current spike at the start. 
-*/
-void rampUp() {
-	byte steps = MAX_CYCLE - START_CYCLE;
-	for (byte n = START_CYCLE; n <= MAX_CYCLE; n++) {
-		analogWrite(MOTOR_PIN, n);
-		delay(RAMP_MS/steps);
-	}
+void setup(){
+    Serial.begin(115200);
+    s1.attach(servoPin);
 }
 
-void stopMotor() {
-	analogWrite(MOTOR_PIN, 0);
-}
-
-
-/* need to use switch...case logic here */
-void loop() {
-	switchState = digitalRead(SWITCH_PIN);		
-	photoState = analogRead(PHOTO_PIN);
-	currentLevel = analogRead(CURRENT);
-	Serial.println(currentLevel);
-	unsigned long maxTime = 2000;
-	unsigned long currentTime = millis();
-	switch (photoState) {
-		case 0 ... PHOTO_MIN:
-			digitalWrite(LED_PIN, LOW);
-			if (switchState == HIGH) {
-				analogWrite(MOTOR_PIN, MAX_CYCLE);
-			} 
-			else {
-				stopMotor();
-			}
-			break;
-
-		case PHOTO_MIN + 1 ... 1000:
-			digitalWrite(LED_PIN, HIGH);
-			break;
-
-		default:
-			digitalWrite(LED_PIN, HIGH);
-	}
+void loop(){
+    s1.write(180);
+    delay(1000);
+    flipFilter();
+    while(false){}
 }
