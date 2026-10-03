@@ -7,8 +7,8 @@ Servo s1;
 
 
 void flipFilter(){//Flip the filter and place it back
-    s1.write(0);
-    delay(500);
+    s1.write(15);
+    delay(2000);
     s1.write(180);
 }
 
