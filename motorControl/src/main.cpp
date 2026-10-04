@@ -1,43 +1,50 @@
 #include <Arduino.h>
-#include "motorControl.h"
+#include <motorControl.h>
+#include <grinderStates.hpp>
 
-// ============================================================================
-// These pins are defined as constants in motorControl.h. 
-// ============================================================================
+// these are defined in motorControl.h
 void setup() {
-    pinMode(MOTOR_PIN, OUTPUT);
-    pinMode(LED_PIN, OUTPUT);
+    pinMode(MOTOR_PWM_PIN, OUTPUT);
     pinMode(SWITCH_PIN, INPUT);
-    pinMode(PHOTO_PIN, INPUT);
+    pinMode(CURRENT_SENSING, INPUT);
 }
 
-// ============================================================================
-// This function is PWM control of the motor itself. To update constants, edit 
-// the motorControl.h header.
-// ============================================================================
-void rampUp(
-    unsigned long now = millis(), 
-    unsigned long prev = 0, 
-    unsigned long interval = 50         // 50 ms
-) {
-    for (
-        int n = MIN_CYCLE;
-        n <= MAX_CYCLE;
-        n++
-    ) {
-        if (now - prev >= interval) {
-            analogWrite(MOTOR_PIN, n);
-            prev = now;
-        }
-    }
-}
+GrinderState currentState = IDLE;
+unsigned long lastRamp = 0;
+int rampInterval = 500;      // 50 ms
+int currentPWM = 0;
 
 void loop() {
+    now = millis();
     switchState = digitalRead(SWITCH_PIN);
-    if (switchState == HIGH) {
-        rampUp();       // PWM ramp
-        analogWrite(MOTOR_PIN, MAX_CYCLE);
-        delay(2000);    // 2 sec, hold on 
-        analogWrite(MOTOR_PIN, 0);
-        delay(2000);    // 2 sec, cool down
+
+    switch(currentState) {
+
+        case IDLE:
+            if (switchState == HIGH) {
+                lastRamp = now;
+                currentState = RAMP_UP;
+            } else {
+                analogWrite(MOTOR_PWM_PIN, 0);
+            }
+            break;
+        
+        case RAMP_UP:
+            if (now - lastRamp >= rampInterval) {
+                lastRamp = now;
+                currentPWM += 25;
+                analogWrite(MOTOR_PWM_PIN, currentPWM);
+            } 
+
+            if (currentPWM >= MAX_CYCLE) {
+                analogWrite(MOTOR_PWM_PIN, MAX_CYCLE);
+                currentState = STEADY_STATE;
+            }
+            break;
+
+        case STEADY_STATE:
+            delay(2000);    // 2 sec, fix later, blocking
+            currentState = IDLE;
+            break;
+    }
 }

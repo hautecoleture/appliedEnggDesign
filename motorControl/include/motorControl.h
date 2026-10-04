@@ -5,29 +5,19 @@
 
 // pins
 const byte SWITCH_PIN = 2;
-const byte MOTOR_PIN = 3;
-const byte LED_PIN = 7;
-const byte PHOTO_PIN = A0;
-const byte CURRENT_SENSING = A2;
+const byte MOTOR_PWM_PIN = 3;
+const byte CURRENT_SENSING = A0;
 
-// duty cycle
-const int MIN_CYCLE = 50;
-const int MAX_CYCLE = 250;
-
-// photo sensor
-const int PHOTO_MIN = 200;
+// duty cycle               // I would not rec exceeding 7/8 max power
+const int MIN_CYCLE = 32;   // 1/8 max power
+const int MAX_CYCLE = 224;  // 7/8 max power
 
 // state variables
 int photoState;
 bool switchState;
 
-// rampUp function
-void rampUp (
-    unsigned long now,
-    unsigned long prev,
-    unsigned long interval
-);
-
-void constantSpeed ();
+// time variables
+unsigned long now;
+unsigned long prev;
 
 #endif
