@@ -11,7 +11,7 @@ void setup() {
 
 GrinderState currentState = IDLE;
 unsigned long lastRamp = 0;
-int rampInterval = 500;      // 50 ms
+int rampInterval = 100;      // 50 ms
 int currentPWM = 0;
 
 void loop() {
@@ -25,7 +25,8 @@ void loop() {
                 lastRamp = now;
                 currentState = RAMP_UP;
             } else {
-                analogWrite(MOTOR_PWM_PIN, 0);
+                currentPWM = 0;
+                analogWrite(MOTOR_PWM_PIN, currentPWM);
             }
             break;
         
