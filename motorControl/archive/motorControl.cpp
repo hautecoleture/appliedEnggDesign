@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 // pin constants
-const byte SWITCH_PIN = 2;
+const byte BUTTON_PIN = 2;
 const byte MOTOR_PIN = 3;
 const byte LED_PIN = 7;
 const byte CURRENT = A0;
@@ -16,12 +16,12 @@ const int RAMP_MS = 1000;		// 1 second
 const int PHOTO_MIN = 200;		// determined experimentally
 int currentLevel = 0;
 int photoState = 0;
-bool switchState = LOW;
+bool buttonState = LOW;
 
 void setup() {
 	Serial.begin(9600);
 	pinMode(MOTOR_PIN, OUTPUT);	
-	pinMode(SWITCH_PIN, INPUT);
+	pinMode(BUTTON_PIN, INPUT);
 	pinMode(PHOTO_PIN, INPUT);
 	pinMode(LED_PIN, OUTPUT);
 }
@@ -44,7 +44,7 @@ void stopMotor() {
 
 /* need to use switch...case logic here */
 void loop() {
-	switchState = digitalRead(SWITCH_PIN);		
+	buttonState = digitalRead(BUTTON_PIN);		
 	photoState = analogRead(PHOTO_PIN);
 	currentLevel = analogRead(CURRENT);
 	Serial.println(currentLevel);
@@ -53,7 +53,7 @@ void loop() {
 	switch (photoState) {
 		case 0 ... PHOTO_MIN:
 			digitalWrite(LED_PIN, LOW);
-			if (switchState == HIGH) {
+			if (buttonState == HIGH) {
 				analogWrite(MOTOR_PIN, MAX_CYCLE);
 			} 
 			else {
