@@ -4,15 +4,19 @@
 void setup() {
     pinMode(GRINDER_PIN, OUTPUT);
     pinMode(BUTTON_PIN, INPUT);
-    pinMode(CURRENT_SENSING, INPUT);
+    pinMode(I_SENSE_PIN, INPUT);
 }
 
 GrinderState grinderStatus = IDLE;
 
 void loop() {
-    now = millis();
-    lastRampTime = 0;
-    buttonState = digitalRead(BUTTON_PIN);
+    now = millis();     // setting time
+    lastRampTime = 0;   // setting ref point
+
+    buttonState = digitalRead(BUTTON_PIN);      // allows for reading of the
+    rawADC = analogRead(I_SENSE_PIN);           // current sening pin in a 
+    voltageReading = rawADC*ADC_2_V;            // format that is friendly for
+    currentReading = voltageReading * V_2_mA;   // testing and troubleshooting
 
     switch(grinderStatus) {
 
@@ -40,8 +44,10 @@ void loop() {
             break;
 
         case STEADY_STATE:  // hold constant speed
-            delay(2000);    // 2 sec, fix later, blocking
-            grinderStatus = IDLE;
+            grindTime = now;
+            if (now - grindTime >= 2000) {
+                grinderStatus = IDLE;
+            }
             break;
     }
 }
