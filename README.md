@@ -1,5 +1,7 @@
 # The Senior Design I Project
 
+This will be updated as time passes. 
+
 ## Team Members
 *The contributors listed on GitHub is not an accurate reflection of the work contributed by all team members and is by far more  distributed than shown.*
 
