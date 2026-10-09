@@ -6,7 +6,6 @@
 // pins
 const byte BUTTON_PIN = 2;
 const byte GRINDER_PIN = 3;
-const byte I_SENSE_PIN = A0;
 
 // pwm constants & variables      
 const int MIN_CYCLE = 32;       // 1/8 max power
