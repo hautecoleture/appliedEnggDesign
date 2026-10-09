@@ -4,14 +4,14 @@
 #include <Arduino.h>
 
 // pins
-const byte BUTTON_PIN = 2;
+const byte BUTTON_PIN = 13;
 const byte GRINDER_PIN = 3;
 const byte I_SENSE_PIN = A0;
 
 // pwm constants & variables      
 const int MIN_CYCLE = 32;       // 1/8 max power
 const int MAX_CYCLE = 224;      // 7/8 max power
-const int RAMP_INTERVAL = 100;  // 100 ms
+const int RAMP_INTERVAL = 200;  // 100 ms
 int currentSpeed = 0;           // idle
 
 // sensing constants & variables
