@@ -4,7 +4,7 @@
 const int MOTOR_DIR = 12;
 
 void setup() {
-    Serial.begin(9600);
+    // Serial.begin(9600);
     pinMode(GRINDER_PIN, OUTPUT);
     pinMode(MOTOR_DIR, OUTPUT);
     pinMode(BUTTON_PIN, INPUT);
@@ -28,7 +28,7 @@ void loop() {
 
         case IDLE:          // do nothing
             if (buttonState == HIGH) {
-                Serial.print("Button State:     ");
+                // Serial.print("Button State:     ");
                 lastRampTime = now;
                 // lastGrindTime = now;
                 grinderStatus = RAMP_UP;
@@ -43,13 +43,13 @@ void loop() {
                 lastRampTime = now;
                 currentSpeed += 25;
                 analogWrite(GRINDER_PIN, currentSpeed);
-                Serial.print("PWM:    ");
-                Serial.println(currentSpeed);
+                // Serial.print("PWM:    ");
+                // Serial.println(currentSpeed);
             } 
 
             if (currentSpeed >= MAX_CYCLE) {
                 grinderStatus = STEADY_STATE;
-                Serial.println("Reached steady state");
+                // Serial.println("Reached steady state");
             }
             
             break;
@@ -63,7 +63,6 @@ void loop() {
                 analogWrite(GRINDER_PIN, MAX_CYCLE);
                 delay(2500);
             }
-
             grinderStatus = IDLE;
             break;
     }
