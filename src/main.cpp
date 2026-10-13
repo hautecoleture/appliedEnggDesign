@@ -1,20 +1,40 @@
 #include <Arduino.h>
-#include <grinderControl.hpp>
 
-const int MOTOR_DIR = 12;
+#define button 2
+#define pwm 3
+#define dir 12
 
-void setup() {
-    pinMode(GRINDER_PIN, OUTPUT);
-    pinMode(MOTOR_DIR, OUTPUT);
-    pinMode(BUTTON_PIN, INPUT);
-    lastRampTime = 0;       // setting ref point
-}
+// pwm vars
+const int minCycle = 32;        // 1/8 max power
+const int maxCycle = 255;       // 7/8 max power
+const int rampInterval = 100;   // 100 ms
+int currentSpeed = 0;
+
+// state vars
+bool buttonState;
+
+// time variables
+unsigned long now;
+unsigned long lastRampTime;
+
+enum GrinderState {
+        IDLE,
+        RAMP_UP,
+        STEADY_STATE,
+    };
 
 GrinderState grinderStatus = IDLE;
 
+void setup() {
+    pinMode(pwm, OUTPUT);
+    pinMode(dir, OUTPUT);
+    pinMode(button, INPUT);
+    lastRampTime = 0;       // setting ref point
+}
+
 void loop() {
     now = millis();         // setting time
-    buttonState = digitalRead(BUTTON_PIN);
+    buttonState = digitalRead(button);
 
     switch(grinderStatus) {
 
@@ -24,19 +44,19 @@ void loop() {
                 grinderStatus = RAMP_UP;
             } else {
                 currentSpeed = 0;
-                analogWrite(GRINDER_PIN, currentSpeed);
+                analogWrite(pwm, currentSpeed);
             }
 
             break;
         
         case RAMP_UP:       // pwm up
-            if (now - lastRampTime >= RAMP_INTERVAL) {
+            if (now - lastRampTime >= rampInterval) {
                 lastRampTime = now;
                 currentSpeed += 25;
-                analogWrite(GRINDER_PIN, currentSpeed);
+                analogWrite(pwm, currentSpeed);
             } 
 
-            if (currentSpeed >= MAX_CYCLE) {
+            if (currentSpeed >= maxCycle) {
                 grinderStatus = STEADY_STATE;
             }
             
@@ -44,13 +64,13 @@ void loop() {
 
         case STEADY_STATE:  // hold constant speed
             for (int n = 0; n <= 4; n++) {
-                analogWrite(GRINDER_PIN, 0);
-                digitalWrite(MOTOR_DIR, 1);
-                analogWrite(GRINDER_PIN, MAX_CYCLE);
+                analogWrite(pwm, 0);
+                digitalWrite(dir, 1);
+                analogWrite(pwm, maxCycle);
                 delay(250);
-                analogWrite(GRINDER_PIN, 0);
-                digitalWrite(MOTOR_DIR, 0);
-                analogWrite(GRINDER_PIN, MAX_CYCLE);
+                analogWrite(pwm, 0);
+                digitalWrite(dir, 0);
+                analogWrite(pwm, maxCycle);
                 delay(2500);
             }
             grinderStatus = IDLE;
