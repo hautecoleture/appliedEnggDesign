@@ -6,6 +6,7 @@
 #define button 2
 #define pwm 3
 #define dir 12
+#define led 7
 
 // pwm vars
 const int minCycle = 32;        // 1/8 max power
@@ -29,7 +30,7 @@ enum GrinderState {
 GrinderState grinderStatus = IDLE;
 Servo s1;
 
-bool checkStorage(){                
+bool checkStorage(){
     int avgLight = 0;
     for(int i = 0;i < 50;i++){      // Take the avg of 50 readings
         avgLight += analogRead(storage);
@@ -54,13 +55,15 @@ void flipFilter() {
     s1.write(180);
 }
 
+void serialTimer(int t, int t_max, String verb) {
+    Serial.print("\rTime until ");
+    Serial.print(verb);
+    Serial.print(" ends:    ");
+    Serial.print(t_max - t);
+    Serial.print(" sec");
+}
 void setup() {
     Serial.begin(9600);
-    if (MCUSR & _BV(BORF)) {
-        Serial.println("Brown-out reset detected!");
-    }
-    // Clear the reset flags so you know what happens next time
-    MCUSR = 0;
 
     s1.attach(servo);
     s1.write(180);
@@ -70,17 +73,20 @@ void setup() {
     pinMode(pwm, OUTPUT);
     pinMode(dir, OUTPUT);
     pinMode(button, INPUT);
+
+    pinMode(led, OUTPUT);
     lastRampTime = 0;       // setting ref point
 }
 
 void loop() {
     now = millis();         // setting time
     buttonState = digitalRead(button);
-
+    digitalWrite(led, HIGH);
     switch(grinderStatus) {
 
         case IDLE:          // do nothing
             if (buttonState == HIGH) {
+                Serial.print("\nButton pressed!\n");
                 lastRampTime = now;
                 grinderStatus = RAMP_UP;
             } else {
@@ -104,23 +110,42 @@ void loop() {
             break;
 
         case STEADY_STATE:  // hold constant speed
-            delay(3000);
+            Serial.print("Grinding...\n");
+            int t = 0;
+            serialTimer(t, 20, "grinding");
+            delay(500);
             for (int i = 0; i <= 4; i++) {
                 analogWrite(pwm, 0);
-                delay(300);             // 0.3 sec
+                delay(500);             // 0.3 sec
                 digitalWrite(dir, 1);
                 analogWrite(pwm, maxCycle);
-                delay(300);             // 0.3 sec
+                delay(500);             // 0.3 sec
+                t += 1;
+                serialTimer(t, 20, "grinding");
                 analogWrite(pwm, 0);
-                delay(300);             // 0.3 sec
+                delay(500);             // 0.3 sec
                 digitalWrite(dir, 0);
                 analogWrite(pwm, maxCycle);
-                delay(3000);            // 3.0 sec
+                t += 1;
+                serialTimer(t, 20, "grinding");
+                delay(1000);            // 1.0 sec
+                t += 1;
+                serialTimer(t, 20, "grinding");
+                delay(1000);            // 1.0 sec
+                t += 1;
+                serialTimer(t, 20, "grinding");
+                delay(1000);            // 1.0 sec
             }
             analogWrite(pwm, 0);
             grinderStatus = IDLE;
-            delay(30000);
+            Serial.print("\n");
+            Serial.print("Brewing...\n");
+            for (int t = 0; t <=30; t++) {
+                serialTimer(t, 30, "flip");
+                delay(1000);
+            }
             flipFilter();
+            Serial.print("\nDone! Thank you!");
             break;
     }
 }
